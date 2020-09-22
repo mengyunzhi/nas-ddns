@@ -1,0 +1,8 @@
+spring:
+  application:
+    aliyun:
+      id: ${id:id}
+      secret: ${secret:qwq}
+      region: cn-qingdao
+      domain-name: ${domain-name:abc.com}
+      key-word: ${sub-domain:nas}
