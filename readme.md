@@ -13,6 +13,7 @@
 
 # 本程序
 使用方法：
+
 0. 在套件中心安装java8
 1. `maven install`打包应用
 2. 打开群晖控制面板 -> 终端机和SNMP -> 选择启用SSH功能
@@ -20,7 +21,8 @@
 4. 使用administrators用户组中的用户ssh登录系统
 5. 找到当前用户的home文件夹，比如我的为：/volume1/homes/panjie
 6. 执行`java -jar 下载nas-ddns-x.x.x.jar --id=阿里云AccessKeyID --secret=阿里云AccessKeySecret --domain-name=你的主域名 --sub-domain=你的二级域名 &`，比如：`java -jar nas-ddns-1.0.0.jar --id=2zNxSAeSByVcxHSaDEDCdweID --secret=2zNxSAeSByVcxSecret --domain-name=test.com --sub-domain=nas &`
+7. 执行无误退出终端，并关闭SSH功能
 
 # 注意事项
 1. 应用启动时会自动的打印日志，如果有错误会在系统启动时报错，请注意看报错信息。
-2. 系统以https://jsonip.com/返回的IP为依据，如果你使用软路由等自动分流的软件，请确认jsonip.com位于直联列表中。
+2. 系统以 https://jsonip.com/ 返回的IP为依据，如果你使用软路由等自动分流的软件，请确认 jsonip.com 位于直连列表中。
