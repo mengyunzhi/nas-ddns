@@ -23,6 +23,8 @@
 6. 执行`nohup java -jar 下载nas-ddns-x.x.x.jar --id=阿里云AccessKeyID --secret=阿里云AccessKeySecret --domain-name=你的主域名 --sub-domain=你的二级域名 > nas.log &`，比如：`nohup java -jar nas-ddns-1.0.0.jar --id=2zNxSAeSByVcxHSaDEDCdweID --secret=2zNxSAeSByVcxSecret --domain-name=test.com --sub-domain=nas > nas.log &`
 7. 执行无误退出终端，并关闭SSH功能
 
+> 使用`ps -a`或`ps -ef`查看进程信息
+
 # 注意事项
 1. 应用启动时会自动的打印日志，如果有错误会在系统启动时报错，请注意看报错信息。
 2. 系统以 https://jsonip.com/ 返回的IP为依据，如果你使用软路由等自动分流的软件，请确认 jsonip.com 位于直连列表中。
