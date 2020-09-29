@@ -15,7 +15,7 @@
 使用方法：
 
 0. 在套件中心安装java8
-1. `maven install`打包应用
+1. `mvn install`打包应用
 2. 打开群晖控制面板 -> 终端机和SNMP -> 选择启用SSH功能
 3. 将打包后的jar文件上传到File Station中的某个文件夹，推荐上传到第4步使用到的用户的home文件夹中。
 4. 使用administrators用户组中的用户ssh登录系统
