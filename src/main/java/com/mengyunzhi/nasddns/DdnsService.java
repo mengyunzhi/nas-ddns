@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 @Service
 public class DdnsService {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static Logger logger = LoggerFactory.getLogger(DdnsService.class);
     /**
      * 当前主机IP
      */
@@ -46,8 +46,9 @@ public class DdnsService {
             // 调用SDK发送请求
             return client.getAcsResponse(request);
         } catch (ClientException e) {
-            logger.warn("发生异常，程序即将终止。请检查：AccessKey ID，AccessKey Secret是否正确。");
-            logger.warn("请检查是否添加了AliyunDNSFullAccess权限");
+            logger.warn("发生异常。请检查：1. AccessKey ID，AccessKey Secret是否正确。");
+            logger.warn("2. 网络是否是正常");
+            logger.warn("3. 是否为阿里云账户添加AliyunDNSFullAccess权限");
             e.printStackTrace();
             // 发生调用错误，抛出运行时异常
             throw new RuntimeException();
@@ -117,8 +118,8 @@ public class DdnsService {
 
     private static void log_print(String functionName, Object result) {
         Gson gson = new Gson();
-        System.out.println("-------------------------------" + functionName + "-------------------------------");
-        System.out.println(gson.toJson(result));
+        logger.info("-------------------------------" + functionName + "-------------------------------");
+        logger.info(gson.toJson(result));
     }
 
     @Scheduled(fixedRate = 60 * 1000)
@@ -127,7 +128,7 @@ public class DdnsService {
         logger.info("开始获取IP地址");
         String currentHostIP = this.getCurrentHostIP();
         if (currentHostIP.equals(this.currentHostIP)) {
-            logger.info("IP未发生变化");
+            logger.info("IP地址为：currentHostIP" + "未发生变化");
             return;
         }
         this.currentHostIP = currentHostIP;
@@ -159,7 +160,7 @@ public class DdnsService {
             // 记录值
             String recordsValue = record.getValue();
 
-            System.out.println("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
+            logger.info("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
             if (!currentHostIP.equals(recordsValue)) {
                 // 修改解析记录
                 UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
