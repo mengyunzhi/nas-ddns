@@ -9,7 +9,7 @@ import java.util.List;
  * @author panjie
  */
 @Configuration
-@ConfigurationProperties(prefix = "spring.application.aliyun")
+@ConfigurationProperties(prefix = "app.aliyun")
 public class AliyunConfig {
     /**
      * AccessKey ID
