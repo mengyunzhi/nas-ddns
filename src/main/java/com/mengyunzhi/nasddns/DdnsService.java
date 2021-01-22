@@ -128,7 +128,7 @@ public class DdnsService {
         logger.info("开始获取IP地址，未发生变化则有1/10的概率进行检查更新");
         String currentHostIP = this.getCurrentHostIP();
         if (currentHostIP.equals(this.currentHostIP) && ((new Random().nextInt()) % 10 != 0)) {
-            logger.info("IP地址为：currentHostIP" + "未发生变化");
+            logger.info("IP地址为：" + currentHostIP + "未发生变化");
             return;
         }
         this.currentHostIP = currentHostIP;
