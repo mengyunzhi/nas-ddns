@@ -15,15 +15,15 @@
 使用方法：
 
 0. 在套件中心安装java8
-1. `mvn install`打包应用
+1. `mvn install`打包应用 或由 
 2. 打开群晖控制面板 -> 终端机和SNMP -> 选择启用SSH功能
 3. 将打包后的jar文件上传到File Station中的某个文件夹，推荐上传到第4步使用到的用户的home文件夹中。
 4. 使用administrators用户组中的用户ssh登录系统
 5. 找到当前用户的home文件夹，比如我的为：/volume1/homes/panjie
-6. 执行`nohup java -jar 下载nas-ddns-x.x.x.jar --id=阿里云AccessKeyID --secret=阿里云AccessKeySecret --domain-name=你的主域名 --sub-domain=你的二级域名 > nas.log &`，比如：`nohup java -jar nas-ddns-1.0.0.jar --id=2zNxSAeSByVcxHSaDEDCdweID --secret=2zNxSAeSByVcxSecret --domain-name=test.com --sub-domain=nas > nas.log &`
+6. 执行`nohup java -jar 下载nas-ddns-x.x.x.jar --id=阿里云AccessKeyID --secret=阿里云AccessKeySecret --domains[0].name=你的主域名（比如baidu.com) --domains[0].record=域名记录值(比如：www) > nas.log &`，比如：`nohup java -jar nas-ddns-1.0.0.jar --id=2zNxSAeSByVcxHSaDEDCdweID --secret=2zNxSAeSByVcxSecret --domains[0].name=test.com --domains[0].record=nas > nas.log &`
 7. 执行无误退出终端，并关闭SSH功能
 
-> 使用`ps -a`或`ps -ef`查看进程信息
+> 使用`ps -a`或`ps -ef`查看进程信息。有多个域名请使用以下命令`nohup java -jar 下载nas-ddns-x.x.x.jar --id=阿里云AccessKeyID --secret=阿里云AccessKeySecret --domains[0].name=第一个主域名 --domains[0].record=第一个记录值 --domains[1].name=第二个主域名 --domains[1].record=第二个记录值  > nas.log &`
 
 # 注意事项
 1. 应用启动时会自动的打印日志，如果有错误会在系统启动时报错，请注意看报错信息。
