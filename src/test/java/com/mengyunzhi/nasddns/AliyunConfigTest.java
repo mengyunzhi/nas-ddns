@@ -14,7 +14,8 @@ class AliyunConfigTest {
 
     @Test
     void test() {
-        assertEquals(this.aliyunConfig.getId(), "5LTAI4GB2zNxSAeSByVcxHSa");
-        assertEquals(this.aliyunConfig.getDomainName(), "yunzhi.club");
+        assertEquals(this.aliyunConfig.getId(), "5LTA123I4G123B");
+        assertEquals(this.aliyunConfig.getDomains().size(), 2);
     }
+
 }

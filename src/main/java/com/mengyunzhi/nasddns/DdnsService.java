@@ -15,12 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -125,9 +125,9 @@ public class DdnsService {
     @Scheduled(fixedRate = 60 * 1000)
     public void main() {
         // 当前主机公网IP
-        logger.info("开始获取IP地址");
+        logger.info("开始获取IP地址，未发生变化则有1/10的概率进行检查更新");
         String currentHostIP = this.getCurrentHostIP();
-        if (currentHostIP.equals(this.currentHostIP)) {
+        if (currentHostIP.equals(this.currentHostIP) && ((new Random().nextInt()) % 10 != 0)) {
             logger.info("IP地址为：currentHostIP" + "未发生变化");
             return;
         }
@@ -140,41 +140,44 @@ public class DdnsService {
                 aliyunConfig.getSecret());
         IAcsClient client = new DefaultAcsClient(profile);
 
-        // 查询指定二级域名的最新解析记录
-        DescribeDomainRecordsRequest describeDomainRecordsRequest = new DescribeDomainRecordsRequest();
-        // 主域名
-        describeDomainRecordsRequest.setDomainName(this.aliyunConfig.getDomainName());
-        // 主机记录
-        describeDomainRecordsRequest.setRRKeyWord(this.aliyunConfig.getKeyWord());
-        // 解析记录类型
-        describeDomainRecordsRequest.setType(this.aliyunConfig.getType());
-        DescribeDomainRecordsResponse describeDomainRecordsResponse = this.describeDomainRecords(describeDomainRecordsRequest, client);
-        log_print("describeDomainRecords", describeDomainRecordsResponse);
+        this.aliyunConfig.getDomains().forEach(domain -> {
+            // 查询指定二级域名的最新解析记录
+            DescribeDomainRecordsRequest describeDomainRecordsRequest = new DescribeDomainRecordsRequest();
+            // 主域名
+            describeDomainRecordsRequest.setDomainName(domain.getName());
+            // 主机记录
+            describeDomainRecordsRequest.setRRKeyWord(domain.getRecord());
+            // 解析记录类型
+            describeDomainRecordsRequest.setType(this.aliyunConfig.getType());
+            DescribeDomainRecordsResponse describeDomainRecordsResponse = this.describeDomainRecords(describeDomainRecordsRequest, client);
+            log_print("describeDomainRecords", describeDomainRecordsResponse);
 
-        List<DescribeDomainRecordsResponse.Record> domainRecords = describeDomainRecordsResponse.getDomainRecords();
-        // 最新的一条解析记录
-        if (domainRecords.size() != 0) {
-            DescribeDomainRecordsResponse.Record record = domainRecords.get(0);
-            // 记录ID
-            String recordId = record.getRecordId();
-            // 记录值
-            String recordsValue = record.getValue();
-
-            logger.info("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
-            if (!currentHostIP.equals(recordsValue)) {
-                // 修改解析记录
-                UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
-                // 主机记录
-                updateDomainRecordRequest.setRR(this.aliyunConfig.getKeyWord());
+            List<DescribeDomainRecordsResponse.Record> domainRecords = describeDomainRecordsResponse.getDomainRecords();
+            // 最新的一条解析记录
+            if (domainRecords.size() != 0) {
+                DescribeDomainRecordsResponse.Record record = domainRecords.get(0);
                 // 记录ID
-                updateDomainRecordRequest.setRecordId(recordId);
-                // 将主机记录值改为当前主机IP
-                updateDomainRecordRequest.setValue(currentHostIP);
-                // 解析记录类型
-                updateDomainRecordRequest.setType(this.aliyunConfig.getType());
-                UpdateDomainRecordResponse updateDomainRecordResponse = this.updateDomainRecord(updateDomainRecordRequest, client);
-                log_print("updateDomainRecord", updateDomainRecordResponse);
+                String recordId = record.getRecordId();
+                // 记录值
+                String recordsValue = record.getValue();
+
+                logger.info("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
+                if (!currentHostIP.equals(recordsValue)) {
+                    // 修改解析记录
+                    UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
+                    // 主机记录
+                    updateDomainRecordRequest.setRR(domain.getRecord());
+                    // 记录ID
+                    updateDomainRecordRequest.setRecordId(recordId);
+                    // 将主机记录值改为当前主机IP
+                    updateDomainRecordRequest.setValue(currentHostIP);
+                    // 解析记录类型
+                    updateDomainRecordRequest.setType(this.aliyunConfig.getType());
+                    UpdateDomainRecordResponse updateDomainRecordResponse = this.updateDomainRecord(updateDomainRecordRequest, client);
+                    log_print("updateDomainRecord", updateDomainRecordResponse);
+                }
             }
-        }
+        });
+
     }
 }

@@ -3,6 +3,11 @@ package com.mengyunzhi.nasddns;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
+/**
+ * @author panjie
+ */
 @Configuration
 @ConfigurationProperties(prefix = "spring.application.aliyun")
 public class AliyunConfig {
@@ -20,21 +25,22 @@ public class AliyunConfig {
     private String region;
 
     /**
-     * 主域名
+     * 域名
      */
-    private String domainName;
-
-    /**
-     * 主机记录
-     */
-    private String keyWord;
+    private List<Domain> domains;
 
     /**
      * 记录类型
      */
     private String type = "A";
 
+    public List<Domain> getDomains() {
+        return domains;
+    }
 
+    public void setDomains(List<Domain> domains) {
+        this.domains = domains;
+    }
 
     public String getId() {
         return id;
@@ -60,22 +66,6 @@ public class AliyunConfig {
         this.region = region;
     }
 
-    public String getDomainName() {
-        return domainName;
-    }
-
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
-    }
-
-    public String getKeyWord() {
-        return keyWord;
-    }
-
-    public void setKeyWord(String keyWord) {
-        this.keyWord = keyWord;
-    }
-
     public String getType() {
         return type;
     }
@@ -83,4 +73,33 @@ public class AliyunConfig {
     public void setType(String type) {
         this.type = type;
     }
+
+    static public class Domain {
+        /**
+         * 域名
+         */
+        private String name;
+        /**
+         * 主机记录
+         */
+        private String record;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getRecord() {
+            return record;
+        }
+
+        public void setRecord(String record) {
+            this.record = record;
+        }
+    }
 }
+
+
