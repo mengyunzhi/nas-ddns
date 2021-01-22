@@ -20,7 +20,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,9 +35,9 @@ public class DdnsService {
     private String currentHostIP;
 
     /**
-     * 请求是否成功
+     * 最后一次请求是否成功
      */
-    private boolean requestSuccess = true;
+    private boolean lastRequestSuccess = true;
 
     @Autowired
     AliyunConfig aliyunConfig;
@@ -48,7 +47,7 @@ public class DdnsService {
      */
     private DescribeDomainRecordsResponse describeDomainRecords(DescribeDomainRecordsRequest request, IAcsClient client) {
         try {
-            this.requestSuccess = true;
+            this.lastRequestSuccess = true;
             // 调用SDK发送请求
             return client.getAcsResponse(request);
         } catch (ClientException e) {
@@ -56,7 +55,7 @@ public class DdnsService {
             logger.warn("2. 网络是否是正常");
             logger.warn("3. 是否为阿里云账户添加AliyunDNSFullAccess权限");
             e.printStackTrace();
-            this.requestSuccess = false;
+            this.lastRequestSuccess = false;
             // 发生调用错误，抛出运行时异常
             throw new RuntimeException();
         }
@@ -134,7 +133,7 @@ public class DdnsService {
         // 当前主机公网IP
         logger.info("开始获取IP地址，未发生变化则有1/10的概率进行检查更新");
         String currentHostIP = this.getCurrentHostIP();
-        if (currentHostIP.equals(this.currentHostIP) && this.requestSuccess) {
+        if (currentHostIP.equals(this.currentHostIP) && this.lastRequestSuccess) {
             logger.info("IP地址为：" + currentHostIP + "未发生变化");
             return;
         }
