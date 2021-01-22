@@ -1,13 +1,12 @@
-spring:
-  application:
-    aliyun:
-      id: ${id:5LTA123I4G123B}
-      secret: ${secret:qFXJkSqIVnSh4DDPtHD123NSOGm39PPz}
-      region: cn-qingdao
-      domains:
-        -
-          name: yourdomain
-          record: nas
-        -
-          name: yourdomain1
-          record: test
+app:
+  aliyun:
+    id: ${id:5LTA123I4G123B}
+    secret: ${secret:qFXJkSqIVnSh4DDPtHD123NSOGm39PPz}
+    region: cn-qingdao
+    domains:
+      -
+        name: yourdomain
+        record: nas
+      -
+        name: yourdomain
+        record: test
