@@ -25,14 +25,16 @@ import java.util.regex.Pattern;
 
 /**
  * 动态域名解析
+ *
+ * @author panjie
  */
 @Service
 public class DdnsService {
-    private static Logger logger = LoggerFactory.getLogger(DdnsService.class);
+    private static final Logger logger = LoggerFactory.getLogger(DdnsService.class);
     /**
      * 当前主机IP
      */
-    private String currentHostIP;
+    private String currentHostIpaddress;
 
     /**
      * 最后一次请求是否成功
@@ -64,11 +66,11 @@ public class DdnsService {
     /**
      * 获取当前主机公网IP
      */
-    private String getCurrentHostIP() {
+    private String getCurrentHostIpaddress() {
         // 这里使用jsonip.com第三方接口获取本地IP
         String jsonip = "https://jsonip.com/";
         // 接口返回结果
-        String result = "";
+        StringBuilder result = new StringBuilder();
         BufferedReader in = null;
         try {
             // 使用HttpURLConnection网络请求第三方接口
@@ -80,7 +82,7 @@ public class DdnsService {
                     urlConnection.getInputStream()));
             String line;
             while ((line = in.readLine()) != null) {
-                result += line;
+                result.append(line);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,11 +101,10 @@ public class DdnsService {
         // 正则表达式，提取xxx.xxx.xxx.xxx，将IP地址从接口返回结果中提取出来
         String rexp = "(\\d{1,3}\\.){3}\\d{1,3}";
         Pattern pat = Pattern.compile(rexp);
-        Matcher mat = pat.matcher(result);
+        Matcher mat = pat.matcher(result.toString());
         String res = "";
-        while (mat.find()) {
+        if (mat.find()) {
             res = mat.group();
-            break;
         }
         return res;
     }
@@ -122,7 +123,7 @@ public class DdnsService {
         }
     }
 
-    private static void log_print(String functionName, Object result) {
+    private static void logPrint(String functionName, Object result) {
         Gson gson = new Gson();
         logger.info("-------------------------------" + functionName + "-------------------------------");
         logger.info(gson.toJson(result));
@@ -132,12 +133,12 @@ public class DdnsService {
     public void main() {
         // 当前主机公网IP
         logger.info("开始获取IP地址，未发生变化则有1/10的概率进行检查更新");
-        String currentHostIP = this.getCurrentHostIP();
-        if (currentHostIP.equals(this.currentHostIP) && this.lastRequestSuccess) {
-            logger.info("IP地址为：" + currentHostIP + "未发生变化");
+        String currentHostIpaddress = this.getCurrentHostIpaddress();
+        if (currentHostIpaddress.equals(this.currentHostIpaddress) && this.lastRequestSuccess) {
+            logger.info("IP地址为：" + currentHostIpaddress + "未发生变化");
             return;
         }
-        this.currentHostIP = currentHostIP;
+        this.currentHostIpaddress = currentHostIpaddress;
 
         // 设置鉴权参数，初始化客户端
         DefaultProfile profile = DefaultProfile.getProfile(
@@ -156,7 +157,7 @@ public class DdnsService {
             // 解析记录类型
             describeDomainRecordsRequest.setType(this.aliyunConfig.getType());
             DescribeDomainRecordsResponse describeDomainRecordsResponse = this.describeDomainRecords(describeDomainRecordsRequest, client);
-            log_print("describeDomainRecords", describeDomainRecordsResponse);
+            logPrint("describeDomainRecords", describeDomainRecordsResponse);
 
             List<DescribeDomainRecordsResponse.Record> domainRecords = describeDomainRecordsResponse.getDomainRecords();
             // 最新的一条解析记录
@@ -167,8 +168,8 @@ public class DdnsService {
                 // 记录值
                 String recordsValue = record.getValue();
 
-                logger.info("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
-                if (!currentHostIP.equals(recordsValue)) {
+                logger.info("-------------------------------当前主机公网IP为：" + currentHostIpaddress + "-------------------------------");
+                if (!currentHostIpaddress.equals(recordsValue)) {
                     // 修改解析记录
                     UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
                     // 主机记录
@@ -176,11 +177,11 @@ public class DdnsService {
                     // 记录ID
                     updateDomainRecordRequest.setRecordId(recordId);
                     // 将主机记录值改为当前主机IP
-                    updateDomainRecordRequest.setValue(currentHostIP);
+                    updateDomainRecordRequest.setValue(currentHostIpaddress);
                     // 解析记录类型
                     updateDomainRecordRequest.setType(this.aliyunConfig.getType());
                     UpdateDomainRecordResponse updateDomainRecordResponse = this.updateDomainRecord(updateDomainRecordRequest, client);
-                    log_print("updateDomainRecord", updateDomainRecordResponse);
+                    logPrint("updateDomainRecord", updateDomainRecordResponse);
                 }
             }
         });
