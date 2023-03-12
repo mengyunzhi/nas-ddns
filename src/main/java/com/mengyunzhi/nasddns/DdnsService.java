@@ -50,7 +50,6 @@ public class DdnsService {
    */
   private DescribeDomainRecordsResponse describeDomainRecords(DescribeDomainRecordsRequest request, IAcsClient client) {
     try {
-      this.lastRequestSuccess = true;
       // 调用SDK发送请求
       return client.getAcsResponse(request);
     } catch (ClientException e) {
@@ -58,7 +57,7 @@ public class DdnsService {
       logger.warn("2. 网络是否是正常");
       logger.warn("3. 是否为阿里云账户添加AliyunDNSFullAccess权限");
       e.printStackTrace();
-      this.lastRequestSuccess = false;
+      this.requestCount = 0;
       // 发生调用错误，抛出运行时异常
       throw new RuntimeException();
     }
