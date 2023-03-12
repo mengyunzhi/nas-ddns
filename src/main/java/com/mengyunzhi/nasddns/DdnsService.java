@@ -37,6 +37,12 @@ public class DdnsService {
   private String currentHostIpaddress;
 
   /**
+   * 请求次数
+   * 当检测到 IP 地址发生变更时，连续请求5次 DNS 变更服务
+   */
+  private int requestCount = 0;
+
+  /**
    * 最后一次请求是否成功
    */
   private boolean lastRequestSuccess = true;
@@ -68,7 +74,7 @@ public class DdnsService {
    */
   private String getCurrentHostIpaddress() {
     // 这里使用jsonip.com第三方接口获取本地IP
-    String jsonip = "https://jsonip.com/";
+    String jsonip = "https://ipv4.jsonip.com/";
     // 接口返回结果
     StringBuilder result = new StringBuilder();
     BufferedReader in = null;
@@ -134,18 +140,18 @@ public class DdnsService {
   public void main() {
     // 当前主机公网IP
     logger.info("开始获取IP地址，未发生变化则有1/10的概率进行检查更新");
-    String currentHostIpaddress;
+    String ipaddress;
     try {
-      currentHostIpaddress = this.getCurrentHostIpaddress();
+      ipaddress = this.getCurrentHostIpaddress();
     } catch (RuntimeException exception) {
       return;
     }
 
-    if (currentHostIpaddress.equals(this.currentHostIpaddress) && this.lastRequestSuccess) {
-      logger.info("IP地址为：" + currentHostIpaddress + "未发生变化");
+    if (ipaddress.equals(this.currentHostIpaddress) && this.lastRequestSuccess && this.requestCount >= 5) {
+      logger.info("IP地址为：" + ipaddress + "未发生变化");
+      this.requestCount = 0;
       return;
     }
-    this.currentHostIpaddress = currentHostIpaddress;
 
     // 设置鉴权参数，初始化客户端
     DefaultProfile profile = DefaultProfile.getProfile(
@@ -175,8 +181,9 @@ public class DdnsService {
         // 记录值
         String recordsValue = record.getValue();
 
-        logger.info("-------------------------------当前主机公网IP为：" + currentHostIpaddress + "-------------------------------");
-        if (!currentHostIpaddress.equals(recordsValue)) {
+        logger.info("-------------------------------当前主机公网IP为：" + ipaddress + "-------------------------------");
+        if (!ipaddress.equals(recordsValue)) {
+          logger.info("更新 IP 地址");
           // 修改解析记录
           UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
           // 主机记录
@@ -184,7 +191,7 @@ public class DdnsService {
           // 记录ID
           updateDomainRecordRequest.setRecordId(recordId);
           // 将主机记录值改为当前主机IP
-          updateDomainRecordRequest.setValue(currentHostIpaddress);
+          updateDomainRecordRequest.setValue(ipaddress);
           // 解析记录类型
           updateDomainRecordRequest.setType(this.aliyunConfig.getType());
           UpdateDomainRecordResponse updateDomainRecordResponse = this.updateDomainRecord(updateDomainRecordRequest, client);
@@ -193,5 +200,8 @@ public class DdnsService {
       }
     });
 
+    // 未发生异常，则设置新 IP 及请求次数
+    this.currentHostIpaddress = ipaddress;
+    this.requestCount++;
   }
 }
