@@ -42,11 +42,6 @@ public class DdnsService {
    */
   private int requestCount = 0;
 
-  /**
-   * 最后一次请求是否成功
-   */
-  private boolean lastRequestSuccess = true;
-
   @Autowired
   AliyunConfig aliyunConfig;
 
@@ -144,13 +139,18 @@ public class DdnsService {
     try {
       ipaddress = this.getCurrentHostIpaddress();
     } catch (RuntimeException exception) {
+      this.requestCount = 0;
       return;
     }
 
-    if (ipaddress.equals(this.currentHostIpaddress) && this.lastRequestSuccess && this.requestCount >= 5) {
-      logger.info("IP地址为：" + ipaddress + "未发生变化");
+
+    if (ipaddress.equals(this.currentHostIpaddress)) {
+      if (this.requestCount >= 5) {
+        logger.info("IP地址为：" + ipaddress + "未发生变化");
+        return;
+      }
+    } else {
       this.requestCount = 0;
-      return;
     }
 
     // 设置鉴权参数，初始化客户端
