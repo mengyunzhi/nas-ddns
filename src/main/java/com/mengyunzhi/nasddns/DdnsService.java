@@ -42,11 +42,6 @@ public class DdnsService {
    */
   private int requestCount = 0;
 
-  /**
-   * 最后一次请求是否成功
-   */
-  private boolean lastRequestSuccess = true;
-
   @Autowired
   AliyunConfig aliyunConfig;
 
@@ -55,7 +50,6 @@ public class DdnsService {
    */
   private DescribeDomainRecordsResponse describeDomainRecords(DescribeDomainRecordsRequest request, IAcsClient client) {
     try {
-      this.lastRequestSuccess = true;
       // 调用SDK发送请求
       return client.getAcsResponse(request);
     } catch (ClientException e) {
@@ -63,7 +57,7 @@ public class DdnsService {
       logger.warn("2. 网络是否是正常");
       logger.warn("3. 是否为阿里云账户添加AliyunDNSFullAccess权限");
       e.printStackTrace();
-      this.lastRequestSuccess = false;
+      this.requestCount = 0;
       // 发生调用错误，抛出运行时异常
       throw new RuntimeException();
     }
@@ -144,13 +138,18 @@ public class DdnsService {
     try {
       ipaddress = this.getCurrentHostIpaddress();
     } catch (RuntimeException exception) {
+      this.requestCount = 0;
       return;
     }
 
-    if (ipaddress.equals(this.currentHostIpaddress) && this.lastRequestSuccess && this.requestCount >= 5) {
-      logger.info("IP地址为：" + ipaddress + "未发生变化");
+
+    if (ipaddress.equals(this.currentHostIpaddress)) {
+      if (this.requestCount >= 5) {
+        logger.info("IP地址为：" + ipaddress + "未发生变化");
+        return;
+      }
+    } else {
       this.requestCount = 0;
-      return;
     }
 
     // 设置鉴权参数，初始化客户端
