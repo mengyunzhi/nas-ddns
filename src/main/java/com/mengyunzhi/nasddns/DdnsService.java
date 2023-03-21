@@ -68,7 +68,7 @@ public class DdnsService {
    */
   private String getCurrentHostIpaddress() {
     // 这里使用jsonip.com第三方接口获取本地IP
-    String jsonip = "https://ipv4.jsonip.com/";
+    String jsonip = "http://myip.ipip.net/";
     // 接口返回结果
     StringBuilder result = new StringBuilder();
     BufferedReader in = null;
@@ -99,8 +99,8 @@ public class DdnsService {
         e2.printStackTrace();
       }
     }
-    // 正则表达式，提取xxx.xxx.xxx.xxx，将IP地址从接口返回结果中提取出来
-    String rexp = "(\\d{1,3}\\.){3}\\d{1,3}";
+
+    String rexp = "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b";
     Pattern pat = Pattern.compile(rexp);
     Matcher mat = pat.matcher(result.toString());
     String res = "";
