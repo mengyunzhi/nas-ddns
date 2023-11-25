@@ -193,6 +193,7 @@ public class DdnsService {
           updateDomainRecordRequest.setValue(ipaddress);
           // 解析记录类型
           updateDomainRecordRequest.setType(this.aliyunConfig.getType());
+          updateDomainRecordRequest.setTTL(record.getTTL());
           UpdateDomainRecordResponse updateDomainRecordResponse = this.updateDomainRecord(updateDomainRecordRequest, client);
           logPrint("updateDomainRecord", updateDomainRecordResponse);
         }
