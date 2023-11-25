@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.mengyunzhi</groupId>
     <artifactId>nas-ddns</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <name>nas-ddns</name>
     <description>DDNS FOR NAS</description>
 
